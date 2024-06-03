@@ -8,6 +8,7 @@ First step
 1. Build initial graph structure  (bipartite and one mode dynamic - ask about structure of dynamic later.)
 1. Try centality
 1. Get API working for monthly payment of the annual report (get it ready to run it) (based on the sample data.)
+1. Look at how to do SQL here!!
 
 
 Second
