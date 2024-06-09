@@ -1,5 +1,6 @@
 # unncessary data files for exporting
 2.Initial_Graph_Building/annual_report_data/*.csv
+2.Initial_Graph_Building/config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
