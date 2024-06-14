@@ -72,3 +72,13 @@ Look at some papers later - for which factors are meaningful.
 - Take the GVKey from the other sources, and use that to get the information you need here.
 - Lagged effect of putting the dependent variable, we need more years to study to do this!!
     - Make sure to do this for future analysis
+
+#### 4. Merging mistake
+
+Annual report has a merging mistake which needs to be fixed here also!!
+
+There are duplicates merged with annual report and same company - maybe sub-sidiary reason check the id details for what's going on here!!
+
+For example the following on annual reports
+
+![alt text](image.png)
