@@ -2,6 +2,18 @@ import pandas as pd
 import numpy as np
 from itertools import combinations
 import networkx as nx
+import matplotlib.pyplot as plt
+from sklearn.cluster import SpectralClustering
+
+
+def get_filtered_graph_data(boardex_file_path):
+
+    boardex_data = pd.read_csv(boardex_file_path, index_col = 0)
+    filtered_data_df = boardex_data[['boardid', 'companyid', 'directorid', 'overlapyearstart', 'overlapyearend' ]].drop_duplicates()
+    filtered_data_df['overlapyearend'].replace("Curr", 2024)
+    filtered_data_df['overlapyearend'] = pd.to_numeric(filtered_data_df['overlapyearend'], errors='coerce')
+
+    return filtered_data_df, boardex_data
 
 def create_adjacency_matrix_on_interlock_df(simplified_boardex_df, year):
 
@@ -37,7 +49,7 @@ def create_adjacency_matrix_on_interlock_df(simplified_boardex_df, year):
     else:
         return None
 
-def create_adjacency_matrices_by_year(boardex_interlock_adj_dict, year_lst):
+def create_adjacency_matrices_by_year(filtered_data_df, year_lst):
     """
     Create adjacency matrix with graph details here
     """
@@ -89,7 +101,7 @@ def create_graph_statistics_df_by_year(boardex_interlock_adj_dict, year_lst):
 
     return graph_stat_df_final
 
-def create_company_level_statistics(boardex_data, graph_stat_df_final, boardex_gvkey_df):
+def create_company_level_statistics(boardex_data, boardex_gvkey_df, graph_stat_df_final):
     
     board_level_stats_df = pd.merge(boardex_data[["boardid", 'boardname', "directorid", 'directorname']], graph_stat_df_final, how = "inner", left_on="directorid", right_on = "directorid" )
     board_level_stats_df.sort_values("year", inplace=True)
@@ -104,3 +116,153 @@ def create_company_level_statistics(boardex_data, graph_stat_df_final, boardex_g
     boarded_graph_df_with_gvkey = boarded_graph_df_with_gvkey.drop_duplicates(["gvkey", "year"])
 
     return boarded_graph_df_with_gvkey
+
+# add graph details
+
+def plot_graphs_from_dict(year_matrix_dict):
+
+    num_plots = len(year_matrix_dict)
+    num_cols = 3
+    
+    # create a figure with subplots
+    num_rows = (num_plots + num_cols - 1) // num_cols
+    
+    
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 5 * num_rows))
+    
+    # flatten axes array and handle case where there is only one subplot
+    if not isinstance(axes, np.ndarray):
+        axes = [axes]  
+    else:
+        axes = axes.flatten()  # 
+    
+    # plot for all azies
+    for ax, (year, adj_matrix) in zip(axes, year_matrix_dict.items()):
+        
+        G = nx.from_pandas_adjacency(adj_matrix)
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, ax=ax, with_labels=False, 
+                node_color='skyblue', edge_color='gray', node_size=5, font_size=10)
+        
+        ax.set_title(str(year))
+    for ax in axes[num_plots:]:
+        ax.axis('off')
+    
+    plt.tight_layout()
+    plt.show()
+
+# clustering plots - showing statistics
+
+def plot_spectral_clustering_from_dict(year_matrix_dict, n_clusters=5, colour_map = None):
+    num_plots = len(year_matrix_dict)
+    num_cols = 3
+    num_rows = (num_plots + num_cols - 1) // num_cols
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 5 * num_rows))
+
+    if num_plots == 1:
+        axes = [axes]
+    else:
+        axes = axes.flatten()
+
+    for ax, (year, adj_matrix) in zip(axes, year_matrix_dict.items()):
+        G = nx.from_pandas_adjacency(adj_matrix)
+        A = nx.to_numpy_array(G)
+        sc = SpectralClustering(n_clusters=n_clusters, affinity='precomputed', random_state=42)
+        labels = sc.fit_predict(A)
+
+        pos = nx.spring_layout(G)
+        if colour_map is None:
+            color_map = plt.get_cmap('viridis') 
+            node_colors = [color_map(labels[i]) for i in range(len(G.nodes()))]
+        else:
+            node_colors = [colour_map[label] for label in sc.labels_]
+        
+
+        nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=5)
+        nx.draw_networkx_edges(G, pos, ax=ax, alpha=0.5)
+        ax.set_title(f"Spectral Clustering {year}:\n Clusters: {n_clusters}")
+        ax.axis('off')
+
+    for ax in axes[num_plots:]:
+        ax.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_louvain_communities_from_dict(year_matrix_dict):
+    num_plots = len(year_matrix_dict)
+    num_cols = 3
+    num_rows = (num_plots + num_cols - 1) // num_cols
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 5 * num_rows))
+
+    if num_plots == 1:
+        axes = [axes]
+    else:
+        axes = axes.flatten()
+
+    for ax, (year, adj_matrix) in zip(axes, year_matrix_dict.items()):
+        G = nx.from_pandas_adjacency(adj_matrix)
+        communities = nx.community.louvain_communities(G, seed=123)
+        num_communities = len(communities)
+
+        cmap = plt.get_cmap('viridis') 
+
+        # Generate as many colors as there are communities
+        colors = [cmap(i / num_communities) for i in range(num_communities)]
+
+        # Create a color map for communities
+        color_map = []
+        for node in G:
+            for idx, community in enumerate(communities):
+                if node in community:
+                    color_map.append(colors[idx])
+                    break
+
+        # Draw the graph
+        pos = nx.spring_layout(G)  # positions for all nodes
+        nx.draw(G, pos, node_color=color_map, with_labels=False, node_size=5, ax = ax)
+        
+        ax.set_title(f"Louvain Communities {year}\nCommunities No: {num_communities}")
+        ax.axis('off')
+
+    for ax in axes[num_plots:]:
+        ax.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+
+# visualising the graph statistics below
+
+def plot_network_statistics(data):
+    # Group by year and calculate mean
+    yearly_data = data.groupby('year').mean()
+    
+    metrics = ['local_clustering_coef', 'degree_centrality', 'betweenness_centrality', 'graph_density']
+    
+    # plot with 4 columns in one row
+    fig, axes = plt.subplots(1, 4, figsize=(20, 5))  # Adjust figsize as needed
+    
+    axes = axes.flatten()
+    
+    # Plot each metric
+    for idx, metric in enumerate(metrics):
+        ax = axes[idx]
+        
+        # Plot the data
+        ax.plot(yearly_data.index.astype(int), yearly_data[metric], marker='o', linestyle='-')
+        ax.set_title(metric.replace('_', ' ').title())
+        ax.set_xlabel('Year')
+        if metric == 'graph_density':
+            ax.set_ylabel(metric.replace('_', ' ').title())
+        else: 
+            ax.set_ylabel('Average ' + metric.replace('_', ' ').title())
+
+        # Set integer x-axis labels
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensures only integers are used
+
+    plt.tight_layout()
+    plt.show()
