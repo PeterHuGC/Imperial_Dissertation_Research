@@ -53,3 +53,22 @@ Look at some papers later - for which factors are meaningful.
 1. starting cannot be used as DV
 1. usually the event in the middle is what's most important.
     - There is many endogeneity issues with panel data with instruments (check Bayesian approach)
+
+### Fix later 
+
+#### 1. Annual Report 
+
+- look at at the period of report not filed at 
+- make sure to change the query appropriately for this here!!
+
+#### 2. Boardex
+
+- Start with company to company relationships, and graphs for the workflow
+- Link the right id (company or id) - made mistake there
+
+#### 3. Compustat
+
+- Look at the manual table details for getting the relevant data
+- Take the GVKey from the other sources, and use that to get the information you need here.
+- Lagged effect of putting the dependent variable, we need more years to study to do this!!
+    - Make sure to do this for future analysis
