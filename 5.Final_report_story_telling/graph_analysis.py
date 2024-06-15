@@ -136,7 +136,7 @@ def plot_graphs_from_dict(year_matrix_dict):
     else:
         axes = axes.flatten()  # 
     
-    # plot for all azies
+
     for ax, (year, adj_matrix) in zip(axes, year_matrix_dict.items()):
         
         G = nx.from_pandas_adjacency(adj_matrix)
@@ -207,10 +207,9 @@ def plot_louvain_communities_from_dict(year_matrix_dict):
 
         cmap = plt.get_cmap('viridis') 
 
-        # Generate as many colors as there are communities
         colors = [cmap(i / num_communities) for i in range(num_communities)]
 
-        # Create a color map for communities
+        # color map for communities
         color_map = []
         for node in G:
             for idx, community in enumerate(communities):
@@ -218,7 +217,6 @@ def plot_louvain_communities_from_dict(year_matrix_dict):
                     color_map.append(colors[idx])
                     break
 
-        # Draw the graph
         pos = nx.spring_layout(G)  # positions for all nodes
         nx.draw(G, pos, node_color=color_map, with_labels=False, node_size=5, ax = ax)
         
@@ -244,15 +242,14 @@ def plot_network_statistics(data):
     metrics = ['local_clustering_coef', 'degree_centrality', 'betweenness_centrality', 'graph_density']
     
     # plot with 4 columns in one row
-    fig, axes = plt.subplots(1, 4, figsize=(20, 5))  # Adjust figsize as needed
+    fig, axes = plt.subplots(1, 4, figsize=(20, 5))
     
     axes = axes.flatten()
     
-    # Plot each metric
+    # plot each metric
     for idx, metric in enumerate(metrics):
         ax = axes[idx]
         
-        # Plot the data
         ax.plot(yearly_data.index.astype(int), yearly_data[metric], marker='o', linestyle='-')
         ax.set_title(metric.replace('_', ' ').title())
         ax.set_xlabel('Year')
@@ -261,8 +258,7 @@ def plot_network_statistics(data):
         else: 
             ax.set_ylabel('Average ' + metric.replace('_', ' ').title())
 
-        # Set integer x-axis labels
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensures only integers are used
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True)) 
 
     plt.tight_layout()
     plt.show()

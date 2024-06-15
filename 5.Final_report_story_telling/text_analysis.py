@@ -187,10 +187,10 @@ model = AutoModelForSequenceClassification.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 def predict_sentiment(texts):
-    # Encode texts
+    
+    # encode and predict sentiments
     encoded_input = tokenizer(texts, return_tensors='pt', padding=True, truncation=True, max_length=512)
     
-    # Model prediction
     with torch.no_grad():
         outputs = model(**encoded_input)
     
@@ -220,21 +220,19 @@ def plot_annual_report_sentiments(sec_10k_df, sentiment_col, years_lst):
 
     fig, axs = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
 
-    # Years to plot
+    # plot by year
 
     for i, year in enumerate(years_lst):
-        # Filter data for the specific year
+
         yearly_data = sec_10k_df[sec_10k_df['report_year'] == year]
         
-        # Count the occurrences of each sentiment
+        # count sentiments
         sentiment_counts = yearly_data[sentiment_col].value_counts().reindex([-1, 0, 1], fill_value=0)
-        
-        # Plot the counts
+    
         axs[i].bar(sentiment_counts.index, sentiment_counts.values)
         axs[i].set_title(f'{sentiment_col.replace("_"," ").title()} Counts for {year}')
         axs[i].set_xlabel('Sentiment')
         axs[i].set_ylabel('Count')
 
-    # Adjust layout for better spacing
     plt.tight_layout()
     plt.show()

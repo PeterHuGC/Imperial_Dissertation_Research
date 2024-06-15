@@ -5,6 +5,8 @@
 5.Final_report_story_telling/lda_model/*
 4. Feature_Generation/test_models
 
+*.docx
+
 *.csv
 *.json
 
