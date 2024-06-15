@@ -2,6 +2,8 @@
 2.Initial_Graph_Building/annual_report_data/*.csv
 2.Initial_Graph_Building/annual_report_data/*.json
 2.Initial_Graph_Building/config.py
+5.Final_report_story_telling/lda_model/*
+4. Feature_Generation/test_models
 
 *.csv
 *.json

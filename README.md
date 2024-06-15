@@ -82,3 +82,12 @@ There are duplicates merged with annual report and same company - maybe sub-sidi
 For example the following on annual reports
 
 ![alt text](image.png)
+
+
+#### Weird behaviour
+
+LDA multicore does not work properly
+
+Try windows version and notebook later, for now just add it into notebook for the time being!!
+
+Train model separately on collab and load the files - as seen here that's it!!
