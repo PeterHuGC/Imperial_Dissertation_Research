@@ -23,9 +23,9 @@ from sklearn.manifold import TSNE
 import matplotlib.colors as mcolors
 from tqdm import tqdm
 
-# download nltk package
-nltk.download('stopwords')
-nltk.download('punkt')
+# download nltk package data
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
 
 stopword=set(stopwords.words('english'))
 
@@ -59,7 +59,7 @@ def data_cleaner(text, return_tokens = False):
         # return relevant tokens here where needed
         return text
 
-    #List to string.
+    # list to string.
     text = ' '.join(text)
 
     return text
@@ -125,30 +125,25 @@ def plot_topic_compositions(lda_model, common_dictionary, figsize=(16,10)):
     counter = Counter(common_dictionary)
 
     out = []
-    for i, topic in topics:
-        for word, weight in topic:
+    for i, topic in enumerate(topics):
+        for word, weight in topic[1]:
             out.append([word, i , weight, counter[word]])
 
     df = pd.DataFrame(out, columns=['word', 'topic_id', 'importance', 'word_count'])        
 
-    # change the code below to be in another format here.
-
-    # Plot Word Count and Weights of Topic Keywords
-    fig, axes = plt.subplots(2, 2, figsize=figsize, sharey=True, dpi=160)
+    # Plotting Weights of Topic Keywords
+    fig, axes = plt.subplots(1, 4, figsize=figsize, sharey=True)
     cols = [color for name, color in mcolors.TABLEAU_COLORS.items()]
     for i, ax in enumerate(axes.flatten()):
-        ax.bar(x='word', height="word_count", data=df.loc[df.topic_id==i, :], color=cols[i], width=0.5, alpha=0.3, label='Word Count')
-        ax_twin = ax.twinx()
-        ax_twin.bar(x='word', height="importance", data=df.loc[df.topic_id==i, :], color=cols[i], width=0.2, label='Weights')
-        ax.set_ylabel('Word Count', color=cols[i])
-        ax_twin.set_ylim(0, 0.030); ax.set_ylim(0, 3500)
-        ax.set_title('Topic: ' + str(i), color=cols[i], fontsize=16)
-        ax.tick_params(axis='y', left=False)
+        ax.bar(x='word', height="importance", data=df.loc[df.topic_id==i, :], color=cols[i], width=0.5, label='Weights')
+        ax.set_ylim(0, 0.030)
+        ax.set_title('Topic: ' + str(i), color=cols[i])
+        ax.tick_params(axis='y', left=True)
         ax.set_xticklabels(df.loc[df.topic_id==i, 'word'], rotation=30, horizontalalignment= 'right')
-        ax.legend(loc='upper left'); ax_twin.legend(loc='upper right')
+        ax.legend(loc='upper right')
 
     fig.tight_layout(w_pad=2)    
-    fig.suptitle('Word Count and Importance of Topic Keywords', fontsize=22, y=1.05)    
+    fig.suptitle('Importance of Topic Keywords', fontsize=22, y=1.05)    
     plt.show()
 
 def plot_dominant_topic_distributions(lda_model, common_corpus):
