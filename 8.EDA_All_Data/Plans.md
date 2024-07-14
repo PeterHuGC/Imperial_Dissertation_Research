@@ -29,6 +29,9 @@ https://sec-api.io/docs/sec-filings-render-api/python-example
 ![alt text](image-2.png)
 
 
+**Filtering : if you have more years, then filter by the appropriate years for meaningful analysis**
+
+
 ### Graph centrality
 
 Use the eigen-centrality https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.centrality.eigenvector_centrality.html
@@ -42,3 +45,18 @@ Can use the use the GPU code to get the centrality - to improve efficiency so tr
 Eigencentrality runs fast - as seen with `3.UsefulAnalysesCode/explore_individual_network.ipynb` from a basic notebook for initial graph, if you do year by year, then you can do this efficiently!!
 
 ![alt text](image-1.png)
+
+### Colab 
+
+We can see that once google drive is mounted
+
+![alt text](image-3.png)
+
+We can easily save files to it so that it is useful
+
+Try to add more 
+
+
+### Overall plan
+
+Got the Graph data, so next step is to get the LDA and sentiment section, and patent data that's it!!
