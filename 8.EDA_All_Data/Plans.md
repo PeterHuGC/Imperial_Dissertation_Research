@@ -10,3 +10,27 @@ Get the graph for all years to get all nodes - or concatenate them together.
 Director level details to merge in a bi-partite manner though (since now these are in edges), what should be done here? Use the melt approach as seen before!!
 
 Here you can take the scores and features that's needed, from seeded LDA as seen before.
+
+
+### Annual Gathering 
+
+Save the results in batches in jsonl
+
+Do text preprocessing in jsonl and parallelisation, read from a few lines in a file to the other (and could split the files as necessary)
+
+Then with gensim combine everything together.
+
+
+### Graph centrality
+
+Use the eigen-centrality https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.centrality.eigenvector_centrality.html
+
+Can use networkx to get the code for this!!
+
+![alt text](image.png)
+
+Can use the use the GPU code to get the centrality - to improve efficiency so try this up later!!
+
+Eigencentrality runs fast - as seen with `3.UsefulAnalysesCode/explore_individual_network.ipynb` from a basic notebook for initial graph, if you do year by year, then you can do this efficiently!!
+
+![alt text](image-1.png)
