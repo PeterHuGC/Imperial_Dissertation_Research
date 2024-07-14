@@ -20,6 +20,14 @@ Do text preprocessing in jsonl and parallelisation, read from a few lines in a f
 
 Then with gensim combine everything together.
 
+**Correction of report from before**
+
+As seen from `4. Feature_Generation/5.RegressionAnalysis_data.ipynb` need to use `periodOfReport`  rather than `filedAt` from the previous annual report extraction, just change the query json string from before to check year from the documentation from before.
+
+https://sec-api.io/docs/sec-filings-render-api/python-example
+
+![alt text](image-2.png)
+
 
 ### Graph centrality
 
