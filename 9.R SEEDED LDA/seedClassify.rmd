@@ -1,0 +1,117 @@
+---
+title: "Seeded LDA"
+subtitle: "Semi-supervised topic modeling"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>", 
+                      fig.width = 8, fig.height = 4, dpi = 150, out.width = 760)
+```
+
+Here we use the job descriptions without blanks - put everything else as empty strings here.
+
+```{r message=FALSE}
+library(seededlda)
+library(dplyr)
+library(quanteda)
+# Load your data
+csv_path <- 'data/boardex_director_employment_data_comp_net_2011_2023_without_blank_job_descriptions.csv'
+data <- read.csv(csv_path, stringsAsFactors = FALSE)
+
+
+# remove not meaningful stopwords as per the notebook
+# https://koheiw.github.io/seededlda/articles/pkgdown/seeded.html
+corp <- readRDS("data/corpus_data.rds")
+toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE, 
+               remove_numbers = TRUE, remove_url = TRUE)
+dfmt <- dfm(toks) |> 
+    dfm_remove(stopwords("en")) |>
+    dfm_remove("*@*") |>
+    dfm_trim(max_docfreq = 0.1, docfreq_type = "prop")
+print(dfmt)
+```
+
+Next we add the seedwords from the paper, based on the 6 functional areas  and the seed words
+
+```{r}
+dict <- dictionary(file = "dictionary.yml")
+print(dict)
+```
+
+```{r, cache=TRUE}
+lda_seed <- textmodel_seededlda(dfmt, dict, alpha = 1.0, beta = 0.01, residual = 1, batch_size = 1, auto_iter = TRUE,
+                                verbose = TRUE) # leave no undefined topics
+```
+
+Quality measure - Include word relevance for measure of quality and classify these based on word parameters.
+
+```{r, results='asis'}
+knitr::kable(terms(lda_seed))
+```
+
+
+Other random stuff he's done, not needed - results are really bad. So not sure how they've got their results.
+
+Still works but not really as anticipated.
+
+```{r, cache=TRUE}
+#lda_res <- textmodel_seededlda(dfmt, dict, residual = 0, batch_size = 0.01, auto_iter = TRUE,
+#                                verbose = TRUE)
+```
+
+
+
+```{r, results='asis'}
+# knitr::kable(terms(lda_res))
+```
+
+```{r, results='asis'}
+# Extract the most likely topic for each document from the fitted model
+doc_topic_ids <- apply(lda_seed$theta, 1, which.max)
+doc_topic_names <- colnames(lda_seed$theta)[doc_topic_ids]
+
+# Create a data frame with classifications and include directorid as a regular column
+classifications <- data.frame(DirectorID = data$directorid, Document = rownames(lda_seed$theta), Topic = doc_topic_names)
+
+# Display the classifications table
+knitr::kable(classifications)
+
+# Save classifications to a CSV file
+write.csv(classifications, file = "data/classifications.csv", row.names = FALSE)
+```
+```{r}
+dim(classifications)
+```
+
+```{r}
+head(classifications)
+```
+
+
+```{r}
+board_employment <- read.csv("data/boardex_director_employment_data_comp_net_2011_2023_without_blank_job_descriptions.csv")
+
+dim(board_employment)
+```
+
+Stack the dataframes together.
+
+```{r}
+board_employment["Topic"] <- classifications$Topic
+head(board_employment)
+```
+
+Got the classifications, can output this to see if they're useful, missing information for this, maybe try something else!!
+
+Can do the same with the exact workflow once you have the exact same data!!
+
+```{r}
+write.csv(board_employment, file = "data/boardex_director_employment_data_comp_net_2011_2023_results_3_wo_blanks.csv", row.names = FALSE)
+```
+
+Merge the results here with fields that have no job descriptions and that's it!!
+
+

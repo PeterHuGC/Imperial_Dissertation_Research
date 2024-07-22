@@ -6,6 +6,8 @@
 4. Feature_Generation/test_models
 *.zip
 
+9.R SEEDED LDA/seedClassify_cache/*
+
 *.docx
 
 *.csv

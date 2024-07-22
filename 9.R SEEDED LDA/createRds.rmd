@@ -1,0 +1,89 @@
+---
+title: "Creating and Saving Corpus Data"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "#>", 
+                      fig.width = 8, fig.height = 4, dpi = 150, out.width = 760)
+# Set CRAN mirror
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+# Install and load required packages
+if (!require(quanteda)) {
+  install.packages("quanteda")
+}
+library(quanteda)
+```
+
+```{r}
+# Load the CSV file
+csv_path <- 'data/boardex_director_employment_data_comp_net_2011_2023.csv'
+data <- read.csv(csv_path, stringsAsFactors = FALSE)
+
+# View the first few rows of the data
+head(data)
+```
+
+```{r}
+dim(data)
+```
+```{r}
+data_abbreviated <- data[data$fulltextdescription != "", ]
+
+dim(data_abbreviated)
+```
+
+
+```{r}
+# Create a new column 'document' by concatenating 'role name' and 'fulltextdescription'
+# data$document <- paste(data$directorid, data$rolename, data$fulltextdescription, sep = " - ")
+
+data_abbreviated$document <- data_abbreviated$fulltextdescription
+
+
+
+# View the first few rows of the data with the new column
+head(data_abbreviated$document)
+```
+
+```{r}
+# Create a corpus from the 'document' column
+corpus <- corpus(data_abbreviated$document)
+
+# View the corpus
+summary(corpus)
+```
+
+```{r}
+length(corpus)
+```
+
+
+```{r}
+# Save the corpus as an RDS file
+rds_path <- 'data/corpus_data.rds'
+saveRDS(corpus, rds_path)
+```
+
+
+```{r}
+# Load the RDS file to verify
+loaded_corpus <- readRDS(rds_path)
+```
+
+# View the loaded corpus
+
+```{r}
+summary(loaded_corpus) # same corpus as before.
+```
+
+Write abbreviated csv for LDA result - put everything else with general titles as other.
+
+```{r}
+write.csv(data_abbreviated, "data/boardex_director_employment_data_comp_net_2011_2023_without_blank_job_descriptions.csv")
+```
+
+
+
