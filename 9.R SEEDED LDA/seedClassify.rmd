@@ -18,13 +18,24 @@ library(seededlda)
 library(dplyr)
 library(quanteda)
 # Load your data
-csv_path <- 'data/boardex_director_employment_data_comp_net_2011_2023_without_blank_job_descriptions.csv'
+csv_path <- 'data/boardex_director_employment_data_comp_net_2011_2023_include_everything.csv'
 data <- read.csv(csv_path, stringsAsFactors = FALSE)
 
+# ud_model <- udpipe_download_model(language = "english")
+# model <- udpipe_load_model(ud_model$file_model)
 
 # remove not meaningful stopwords as per the notebook
 # https://koheiw.github.io/seededlda/articles/pkgdown/seeded.html
 corp <- readRDS("data/corpus_data.rds")
+
+# # Annotate with POS tags
+# annotations <- udpipe_annotate(model, x = corp$text)
+# annotations_df <- as.data.frame(annotations)
+# 
+# # Filter out verbs
+# non_verbs <- annotations_df[annotations_df$upos != "VERB", ]
+
+
 toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE, 
                remove_numbers = TRUE, remove_url = TRUE)
 dfmt <- dfm(toks) |> 
@@ -40,6 +51,11 @@ Next we add the seedwords from the paper, based on the 6 functional areas  and t
 dict <- dictionary(file = "dictionary.yml")
 print(dict)
 ```
+
+```{r}
+help(textmodel_seededlda) # batch size here for distributed computing
+```
+
 
 ```{r, cache=TRUE}
 lda_seed <- textmodel_seededlda(dfmt, dict, alpha = 1.0, beta = 0.01, residual = 1, batch_size = 1, auto_iter = TRUE,
@@ -68,13 +84,18 @@ Still works but not really as anticipated.
 # knitr::kable(terms(lda_res))
 ```
 
+```{r}
+length(data$directorid)
+```
+
+
 ```{r, results='asis'}
 # Extract the most likely topic for each document from the fitted model
 doc_topic_ids <- apply(lda_seed$theta, 1, which.max)
 doc_topic_names <- colnames(lda_seed$theta)[doc_topic_ids]
 
 # Create a data frame with classifications and include directorid as a regular column
-classifications <- data.frame(DirectorID = data$directorid, Document = rownames(lda_seed$theta), Topic = doc_topic_names)
+classifications <- data.frame(DirectorID = data$directorid, Document = rownames(lda_seed$theta), Topic = doc_topic_names) # 
 
 # Display the classifications table
 knitr::kable(classifications)
@@ -92,7 +113,7 @@ head(classifications)
 
 
 ```{r}
-board_employment <- read.csv("data/boardex_director_employment_data_comp_net_2011_2023_without_blank_job_descriptions.csv")
+board_employment <- read.csv("data/boardex_director_employment_data_comp_net_2011_2023_include_everything.csv")
 
 dim(board_employment)
 ```
@@ -109,7 +130,7 @@ Got the classifications, can output this to see if they're useful, missing infor
 Can do the same with the exact workflow once you have the exact same data!!
 
 ```{r}
-write.csv(board_employment, file = "data/boardex_director_employment_data_comp_net_2011_2023_results_3_wo_blanks.csv", row.names = FALSE)
+write.csv(board_employment, file = "data/boardex_director_employment_data_comp_net_2011_2023_results_with_everything.csv", row.names = FALSE)
 ```
 
 Merge the results here with fields that have no job descriptions and that's it!!

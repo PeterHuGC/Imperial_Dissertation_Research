@@ -30,27 +30,34 @@ head(data)
 dim(data)
 ```
 ```{r}
-data_abbreviated <- data[data$fulltextdescription != "", ]
-
-dim(data_abbreviated)
+# data_abbreviated <- data[data$fulltextdescription != "", ]
+# 
+# dim(data_abbreviated)
 ```
 
 
 ```{r}
 # Create a new column 'document' by concatenating 'role name' and 'fulltextdescription'
-# data$document <- paste(data$directorid, data$rolename, data$fulltextdescription, sep = " - ")
+data$document <- paste(data$directorid, data$rolename, data$fulltextdescription, sep = " - ")
 
-data_abbreviated$document <- data_abbreviated$fulltextdescription
+# data_abbreviated$document <- data_abbreviated$fulltextdescription
+# 
+# 
+# 
+# # View the first few rows of the data with the new column
+# head(data_abbreviated$document)
 
-
-
-# View the first few rows of the data with the new column
-head(data_abbreviated$document)
+head(data$document)
 ```
 
 ```{r}
+length(data$document)
+```
+
+
+```{r}
 # Create a corpus from the 'document' column
-corpus <- corpus(data_abbreviated$document)
+corpus <- corpus(data$document)
 
 # View the corpus
 summary(corpus)
@@ -82,7 +89,7 @@ summary(loaded_corpus) # same corpus as before.
 Write abbreviated csv for LDA result - put everything else with general titles as other.
 
 ```{r}
-write.csv(data_abbreviated, "data/boardex_director_employment_data_comp_net_2011_2023_without_blank_job_descriptions.csv")
+write.csv(data, "data/boardex_director_employment_data_comp_net_2011_2023_include_everything.csv")
 ```
 
 
